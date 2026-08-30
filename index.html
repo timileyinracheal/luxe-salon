@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Luxe Salon - Professional hairstyling services for all hair types and styles">
+    <meta name="keywords" content="salon, hairstyling, beauty, hair care, professional styling">
+    <title>Luxe Salon - Professional Hairstyling</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <i class="fas fa-scissors"></i>
+                    <span>Luxe Salon</span>
+                </div>
+                <nav class="nav-menu">
+                    <a href="#home" class="nav-link active">Home</a>
+                    <a href="#services" class="nav-link">Services</a>
+                    <a href="#gallery" class="nav-link">Gallery</a>
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                </nav>
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Luxe Salon</h1>
+            <p>Elevate Your Beauty. Transform Your Look.</p>
+            <button class="cta-button" onclick="scrollToSection('contact')">Book Appointment</button>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <i class="fas fa-cut"></i>
+                    <h3>Hair Cutting</h3>
+                    <p>Professional cutting for all hair types and styles. From classic cuts to trendy designs.</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-palette"></i>
+                    <h3>Hair Coloring</h3>
+                    <p>Expert color services including highlights, lowlights, and full color transformations.</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-wind"></i>
+                    <h3>Styling & Blowout</h3>
+                    <p>Professional styling for special occasions or everyday looks with expert care.</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-spa"></i>
+                    <h3>Hair Treatment</h3>
+                    <p>Nourishing treatments to restore health, shine, and vitality to your hair.</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-ring"></i>
+                    <h3>Braiding</h3>
+                    <p>Creative braiding styles including box braids, cornrows, and protective styles.</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-crown"></i>
+                    <h3>Special Occasions</h3>
+                    <p>Bridal and event styling to ensure you look stunning on your special day.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <h2>Gallery</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Elegant Cut</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Vibrant Color</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Braided Beauty</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Bold Style</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Natural Glow</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Wedding Ready</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About Luxe Salon</h2>
+                    <p>Welcome to Luxe Salon, your premier destination for professional hairstyling and beauty services. With years of experience and a passion for excellence, our team of expert stylists is dedicated to transforming your hair and boosting your confidence.</p>
+                    <p>We believe every client deserves personalized attention and premium care. Using only the highest quality products and latest techniques, we ensure you leave our salon looking and feeling your absolute best.</p>
+                    <ul class="about-list">
+                        <li><i class="fas fa-check"></i> Expert Stylists</li>
+                        <li><i class="fas fa-check"></i> Premium Products</li>
+                        <li><i class="fas fa-check"></i> Personalized Service</li>
+                        <li><i class="fas fa-check"></i> Clean & Comfortable</li>
+                    </ul>
+                </div>
+                <div class="about-stats">
+                    <div class="stat">
+                        <h3>500+</h3>
+                        <p>Happy Clients</p>
+                    </div>
+                    <div class="stat">
+                        <h3>10+</h3>
+                        <p>Expert Stylists</p>
+                    </div>
+                    <div class="stat">
+                        <h3>5★</h3>
+                        <p>Client Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>Get In Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h3>Location</h3>
+                            <p>123 Beauty Street<br>Fashion City, FC 12345</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Phone</h3>
+                            <p>(555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email</h3>
+                            <p>hello@luxesalon.com</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h3>Hours</h3>
+                            <p>Mon-Fri: 9AM - 6PM<br>Sat: 10AM - 4PM<br>Sun: Closed</p>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email" required>
+                    <input type="tel" placeholder="Your Phone" required>
+                    <textarea placeholder="Your Message" rows="5" required></textarea>
+                    <button type="submit" class="cta-button">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Luxe Salon</h4>
+                    <p>Your trusted beauty destination for professional hairstyling and premium services.</p>
+                    <div class="social-links">
+                        <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#services">Hair Cutting</a></li>
+                        <li><a href="#services">Hair Coloring</a></li>
+                        <li><a href="#services">Styling</a></li>
+                        <li><a href="#services">Treatments</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Luxe Salon. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
