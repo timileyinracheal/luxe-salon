@@ -87,42 +87,26 @@
         <div class="container">
             <h2>Gallery</h2>
             <div class="gallery-grid">
-                <div class="gallery-item">
-                    <div class="gallery-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>Elegant Cut</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <div class="gallery-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>Vibrant Color</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <div class="gallery-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>Braided Beauty</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <div class="gallery-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>Bold Style</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <div class="gallery-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>Natural Glow</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <div class="gallery-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>Wedding Ready</p>
-                    </div>
-                </div>
+                <figure class="gallery-item">
+                    <a href="assets/images/gallery/img1.jpg" data-caption="Elegant long braids" class="gallery-link">
+                        <img src="assets/images/gallery/img1.jpg" alt="Elegant long braids" loading="lazy" width="1200" height="800">
+                    </a>
+                    <figcaption>Elegant long braids</figcaption>
+                </figure>
+
+                <figure class="gallery-item">
+                    <a href="assets/images/gallery/img2.jpg" data-caption="Stylish box braids" class="gallery-link">
+                        <img src="assets/images/gallery/img2.jpg" alt="Stylish box braids" loading="lazy" width="1200" height="800">
+                    </a>
+                    <figcaption>Stylish box braids</figcaption>
+                </figure>
+
+                <figure class="gallery-item">
+                    <a href="assets/images/gallery/img3.jpg" data-caption="Neat micro braids" class="gallery-link">
+                        <img src="assets/images/gallery/img3.jpg" alt="Neat micro braids" loading="lazy" width="1200" height="800">
+                    </a>
+                    <figcaption>Neat micro braids</figcaption>
+                </figure>
             </div>
         </div>
     </section>
@@ -243,6 +227,13 @@
             </div>
         </div>
     </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close image">&times;</button>
+        <img src="" alt="" id="lightboxImage">
+        <p id="lightboxCaption" class="lightbox-caption"></p>
+    </div>
 
     <script src="script.js"></script>
 </body>

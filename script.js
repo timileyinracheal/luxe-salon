@@ -2,15 +2,17 @@
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
-hamburger.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-});
+if (hamburger) {
+    hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+    });
+}
 
 // Close mobile menu when a link is clicked
 const navLinks = document.querySelectorAll('.nav-link');
 navLinks.forEach(link => {
     link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
+        if (navMenu) navMenu.classList.remove('active');
         updateActiveLink(link);
     });
 });
@@ -61,7 +63,6 @@ if (contactForm) {
         e.preventDefault();
         
         // Get form values
-        const formData = new FormData(contactForm);
         const name = contactForm.querySelector('input[type="text"]').value;
         const email = contactForm.querySelector('input[type="email"]').value;
         const phone = contactForm.querySelector('input[type="tel"]').value;
@@ -102,8 +103,8 @@ function showNotification(message, type = 'success') {
 }
 
 // Add animation styles
-const style = document.createElement('style');
-style.textContent = `
+const _style = document.createElement('style');
+_style.textContent = `
     @keyframes slideIn {
         from {
             transform: translateX(400px);
@@ -126,7 +127,7 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(_style);
 
 // Intersection Observer for fade-in animations
 const observerOptions = {
@@ -173,17 +174,59 @@ fadeInStyle.textContent = `
 `;
 document.head.appendChild(fadeInStyle);
 
-// Gallery image placeholder interaction
-const galleryItems = document.querySelectorAll('.gallery-item');
-galleryItems.forEach(item => {
-    item.style.cursor = 'pointer';
-    item.addEventListener('click', () => {
-        showNotification('Gallery image feature coming soon!', 'info');
+// Gallery lightbox handling
+const lightbox = document.getElementById('lightbox');
+const lightboxImage = document.getElementById('lightboxImage');
+const lightboxCaption = document.getElementById('lightboxCaption');
+const lightboxClose = document.getElementById('lightboxClose');
+
+function openLightbox(src, caption, alt) {
+    if (!lightbox) return;
+    lightboxImage.src = src;
+    lightboxImage.alt = alt || '';
+    lightboxCaption.textContent = caption || '';
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+}
+
+function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    lightboxImage.src = '';
+    lightboxCaption.textContent = '';
+}
+
+if (lightboxClose) {
+    lightboxClose.addEventListener('click', closeLightbox);
+}
+
+if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target === lightboxImage) {
+            closeLightbox();
+        }
     });
+}
+
+// Close on Esc
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+});
+
+// Attach click handlers to gallery links (delegated)
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('.gallery-link');
+    if (!link) return;
+    e.preventDefault();
+    const src = link.getAttribute('href');
+    const caption = link.dataset.caption || '';
+    const img = link.querySelector('img');
+    const alt = img ? img.alt : '';
+    openLightbox(src, caption, alt);
 });
 
 // Service card click handlers
-const serviceCards = document.querySelectorAll('.service-card');
 serviceCards.forEach(card => {
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
