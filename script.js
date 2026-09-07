@@ -1,3 +1,64 @@
+// Array of gallery images with their paths and captions
+const galleryImages = [
+    { name: 'OIP (1) - Copy.webp', caption: 'Beautiful braiding style' },
+    { name: 'OIP (2) - Copy.webp', caption: 'Elegant hair design' },
+    { name: 'OIP (2).jfif', caption: 'Professional styling' },
+    { name: 'OIP (3).jfif', caption: 'Stunning hair transformation' },
+    { name: 'OIP (3).webp', caption: 'Creative braids' },
+    { name: 'OIP (4).jfif', caption: 'Expert craftsmanship' },
+    { name: 'OIP (5).jfif', caption: 'Luxe salon masterpiece' },
+    { name: 'OIP (6).jfif', caption: 'Professional finish' },
+    { name: 'OIP (7).jfif', caption: 'Beautiful style' },
+    { name: 'OIP (8).jfif', caption: 'Hair artistry' },
+    { name: 'img1.jfif', caption: 'Classic elegance' }
+];
+
+// Function to load gallery images dynamically
+function loadGallery() {
+    const galleryGrid = document.getElementById('galleryGrid');
+    
+    if (!galleryGrid) return;
+    
+    // Clear existing content
+    galleryGrid.innerHTML = '';
+    
+    // Create gallery items from the images array
+    galleryImages.forEach((image) => {
+        const imagePath = `assets/gallary/images/${image.name}`;
+        
+        const figure = document.createElement('figure');
+        figure.className = 'gallery-item';
+        
+        const link = document.createElement('a');
+        link.href = imagePath;
+        link.className = 'gallery-link';
+        link.setAttribute('data-caption', image.caption);
+        
+        const img = document.createElement('img');
+        img.src = imagePath;
+        img.alt = image.caption;
+        img.loading = 'lazy';
+        img.width = 1200;
+        img.height = 800;
+        
+        const figcaption = document.createElement('figcaption');
+        figcaption.textContent = image.caption;
+        
+        link.appendChild(img);
+        figure.appendChild(link);
+        figure.appendChild(figcaption);
+        
+        galleryGrid.appendChild(figure);
+    });
+    
+    // Observe gallery items for fade-in animation
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    galleryItems.forEach(item => {
+        item.style.opacity = '0';
+        observer.observe(item);
+    });
+}
+
 // Mobile Menu Toggle
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.querySelector('.nav-menu');
@@ -144,20 +205,6 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe service cards and gallery items
-const serviceCards = document.querySelectorAll('.service-card');
-const galleryItems = document.querySelectorAll('.gallery-item');
-
-serviceCards.forEach(card => {
-    card.style.opacity = '0';
-    observer.observe(card);
-});
-
-galleryItems.forEach(item => {
-    item.style.opacity = '0';
-    observer.observe(item);
-});
-
 // Add fade-in animation
 const fadeInStyle = document.createElement('style');
 fadeInStyle.textContent = `
@@ -227,6 +274,7 @@ document.addEventListener('click', (e) => {
 });
 
 // Service card click handlers
+const serviceCards = document.querySelectorAll('.service-card');
 serviceCards.forEach(card => {
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
@@ -245,6 +293,9 @@ document.body.style.transition = 'opacity 0.5s ease';
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     document.body.style.opacity = '1';
+    
+    // Load gallery images dynamically
+    loadGallery();
     
     // Add scroll animations
     const elements = document.querySelectorAll('.service-card, .gallery-item, .stat');
