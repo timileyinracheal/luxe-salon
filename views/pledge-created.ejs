@@ -2,11 +2,31 @@
 <section class="narrow-section"><div class="form-card">
   <span class="eyebrow">Pledge created</span><h1>Thank you for supporting Luxe Salon.</h1>
   <p>Your pledge for <strong><%= item.title %></strong> is pending until the bank transfer is received and verified.</p>
-  <div class="reference-box"><span>Your private contribution reference</span><strong><%= contribution.paymentCode %></strong><p>Keep this code safe. Use it to check whether your contribution has been verified.</p></div>
+  <div class="reference-card-wrap">
+    <article class="reference-card" id="reference-card" data-reference="<%= contribution.paymentCode %>" data-item="<%= item.title %>" data-amount="<%= formatMoney(contribution.amountKobo) %>">
+      <div class="reference-card-top"><span class="reference-card-mark">LS</span><div><strong>Luxe Salon</strong><span>ABUJA · SUPPORTER CARD</span></div><span class="reference-card-status">PENDING</span></div>
+      <div class="reference-card-content"><span class="reference-card-kicker">A NEW CHAPTER STARTS WITH YOU</span><h2>Thank you for helping us open our doors.</h2>
+        <div class="reference-card-code"><span>PRIVATE REFERENCE · TRANSFER NARRATION</span><strong><%= contribution.paymentCode %></strong></div>
+      </div>
+      <div class="reference-card-bottom"><div><span>SUPPORTING</span><strong><%= item.title %></strong></div><div><span>PLEDGE AMOUNT</span><strong><%= formatMoney(contribution.amountKobo) %></strong></div></div>
+    </article>
+    <a class="button button-primary reference-card-download" id="download-reference-card" href="#" download>Download reference card</a>
+    <span class="reference-card-feedback" id="reference-card-feedback" role="status" aria-live="polite"></span>
+  </div>
   <% if (campaign.bankName && campaign.accountName && campaign.accountNumber) { %>
     <div class="bank-details"><h2>Bank transfer details</h2><dl><div><dt>Bank</dt><dd><%= campaign.bankName %></dd></div><div><dt>Account name</dt><dd><%= campaign.accountName %></dd></div><div><dt>Account number</dt><dd><%= campaign.accountNumber %></dd></div><div><dt>Amount</dt><dd><%= formatMoney(contribution.amountKobo) %></dd></div><div><dt>Transfer narration</dt><dd><%= contribution.paymentCode %></dd></div></dl></div>
   <% } else { %><div class="alert">Bank transfer details are not configured yet. Save your reference and contact the fundraiser owner for payment instructions.</div><% } %>
+  <% if (contribution.status === 'pending') { %>
+    <div class="proof-upload"><h2><%= contribution.paymentProofPublicId ? 'Replace payment proof' : 'Upload payment proof' %></h2>
+      <% if (proofUploaded) { %><div class="alert" role="status">Your proof was uploaded. The fundraiser owner will verify the transfer.</div><% } %>
+      <form method="post" enctype="multipart/form-data" action="/contribution/<%= contribution.paymentCode %>/proof" class="stacked-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label>Proof of transfer <span class="muted">(JPEG, PNG, or WebP; up to 5 MB)</span><input type="file" name="proof" accept="image/jpeg,image/png,image/webp" <%= contribution.paymentProofPublicId ? '' : 'required' %>></label>
+        <button class="button button-outline button-full" type="submit"><%= contribution.paymentProofPublicId ? 'Replace proof' : 'Submit proof' %></button>
+      </form>
+    </div>
+  <% } %>
   <p class="fine-print">Only transfer using details confirmed by the fundraiser owner. The site does not collect or store banking passwords or card details.</p>
   <a class="button button-outline button-full" href="/contribution-status">Check contribution status</a>
 </div></section>
+<script src="/reference-card.js" defer></script>
 <%- include('partials/footer') %>

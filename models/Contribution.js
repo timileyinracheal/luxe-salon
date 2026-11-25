@@ -8,6 +8,8 @@ const contributionSchema = new mongoose.Schema({
   amountKobo: { type: Number, required: true, min: 100 },
   paymentCode: { type: String, required: true, unique: true, index: true },
   transferReference: { type: String, trim: true, maxlength: 120, default: '' },
+  paymentProofPublicId: { type: String, trim: true, default: '' },
+  paymentProofFormat: { type: String, trim: true, default: '' },
   status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending', index: true },
   verifiedAt: { type: Date, default: null },
   adminNote: { type: String, trim: true, maxlength: 500, default: '' }

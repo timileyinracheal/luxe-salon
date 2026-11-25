@@ -1,0 +1,24 @@
+.reference-card-wrap{margin:28px 0 34px}
+.reference-card{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:24px;width:100%;aspect-ratio:4/3;padding:28px;border:1px solid #c9ae76;border-radius:8px;background:#f7f2e7;color:#29271f;box-shadow:0 16px 38px rgba(44,37,25,.12)}
+.reference-card::before{position:absolute;z-index:-1;inset:10px;border:1px solid rgba(167,123,50,.34);border-radius:4px;content:"";pointer-events:none}
+.reference-card-top,.reference-card-top>div,.reference-card-bottom,.reference-card-bottom>div{display:flex}
+.reference-card-top{align-items:center;gap:12px}
+.reference-card-mark{display:grid;place-items:center;width:42px;height:42px;border:1px solid #a77b32;border-radius:3px;color:#8d682b;font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700}
+.reference-card-top>div{flex:1;flex-direction:column;line-height:1.2}
+.reference-card-top>div strong{font-family:'Playfair Display',Georgia,serif;font-size:20px}
+.reference-card-top>div span,.reference-card-status,.reference-card-kicker,.reference-card-code span,.reference-card-bottom>div span{font-size:9px;font-weight:700;letter-spacing:1.3px}
+.reference-card-top>div span{margin-top:5px;color:#797266}
+.reference-card-status{padding:6px 8px;border:1px solid #b9c9b9;border-radius:2px;color:#47755c}
+.reference-card-kicker{display:block;color:#a77b32}
+.reference-card-content h2{max-width:440px;margin:9px 0 16px;font-size:29px;line-height:1.12}
+.reference-card-code{padding:12px 15px;border-radius:3px;background:#292c27;color:#fffdf7}
+.reference-card-code span{display:block;margin-bottom:6px;color:#d9bd7d}
+.reference-card-code strong{font-family:'DM Sans',sans-serif;font-size:22px;letter-spacing:1px}
+.reference-card-bottom{justify-content:space-between;gap:18px;padding-top:13px;border-top:1px solid #d9cfba}
+.reference-card-bottom>div{min-width:0;flex-direction:column;gap:4px}
+.reference-card-bottom>div:last-child{text-align:right}
+.reference-card-bottom>div span{color:#8e7547}
+.reference-card-bottom>div strong{overflow-wrap:anywhere;font-size:14px;line-height:1.25}
+.reference-card-download{margin-top:14px}
+.reference-card-feedback{display:block;min-height:1.4em;margin-top:5px;color:#47755c;font-size:.88rem}
+@media(max-width:600px){.reference-card{gap:16px;padding:22px 18px}.reference-card-content h2{font-size:24px}.reference-card-code{padding:10px 12px}.reference-card-code strong{font-size:18px}.reference-card-bottom{gap:12px}.reference-card-bottom>div strong{font-size:12px}.reference-card-status{font-size:8px;letter-spacing:.8px}}

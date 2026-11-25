@@ -9,6 +9,9 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+
 const Admin = require('./models/Admin');
 const Item = require('./models/FundraisingItem');
 const Contribution = require('./models/Contribution');
@@ -16,6 +19,30 @@ const Contribution = require('./models/Contribution');
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const CURRENCY = process.env.CURRENCY || 'NGN';
+const cloudinaryConfigured = Boolean(process.env.CLOUDINARY_URL || (
+  process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET
+));
+const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+
+if (process.env.CLOUDINARY_URL) {
+  cloudinary.config({ secure: true });
+} else if (cloudinaryConfigured) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true
+  });
+}
+
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+  fileFilter(req, file, callback) {
+    if (!allowedImageTypes.has(file.mimetype)) return callback(new Error('Choose a JPEG, PNG, or WebP image up to 5 MB.'));
+    callback(null, true);
+  }
+});
 
 if (!process.env.MONGODB_URI || !process.env.SESSION_SECRET) {
   throw new Error('Set MONGODB_URI and SESSION_SECRET in your environment before starting the server.');
@@ -24,7 +51,11 @@ if (!process.env.MONGODB_URI || !process.env.SESSION_SECRET) {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.disable('x-powered-by');
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: { imgSrc: ["'self'", 'data:', 'https:'] }
+  }
+}));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
@@ -59,19 +90,72 @@ app.use((req, res, next) => {
   res.locals.flash = req.session.flash || null;
   res.locals.admin = null;
   delete req.session.flash;
-  if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    const supplied = req.body && req.body._csrf;
-    const expected = req.session.csrfToken;
-    if (typeof supplied !== 'string' || supplied.length !== expected.length ||
-        !crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) {
-      return res.status(403).render('error', { title: 'Request expired', message: 'Please reload the page and try again.' });
-    }
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && !req.is('multipart/form-data')) {
+    return verifyCsrfToken(req, res, next);
   }
   next();
 });
 
 const asyncRoute = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: 'draft-7', legacyHeaders: false });
+const proofUploadLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: 'draft-7', legacyHeaders: false });
+
+function verifyCsrfToken(req, res, next) {
+  const supplied = req.body && req.body._csrf;
+  const expected = req.session.csrfToken;
+  if (typeof supplied !== 'string' || supplied.length !== expected.length ||
+      !crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) {
+    return res.status(403).render('error', { title: 'Request expired', message: 'Please reload the page and try again.' });
+  }
+  next();
+}
+
+function parseImageUpload(fieldName) {
+  return (req, res, next) => imageUpload.single(fieldName)(req, res, (error) => {
+    if (error) return res.status(400).render('error', { title: 'Image upload failed', message: 'Choose a JPEG, PNG, or WebP image up to 5 MB.' });
+    next();
+  });
+}
+
+function validateUploadedImage(req, res, next) {
+  if (!req.file) return next();
+  import('file-type').then(({ fileTypeFromBuffer }) => fileTypeFromBuffer(req.file.buffer))
+    .then((fileType) => {
+      if (!fileType || !allowedImageTypes.has(fileType.mime)) {
+        return res.status(400).render('error', { title: 'Image upload failed', message: 'The selected file is not a supported image.' });
+      }
+      next();
+    })
+    .catch(next);
+}
+
+function uploadCloudinaryImage(file, folder, authenticated = false) {
+  if (!cloudinaryConfigured) {
+    const error = new Error('Cloudinary uploads are not configured. Add Cloudinary credentials to the environment.');
+    error.statusCode = 503;
+    throw error;
+  }
+  return new Promise((resolve, reject) => {
+    const options = { folder, resource_type: 'image' };
+    if (authenticated) options.type = 'authenticated';
+    cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    }).end(file.buffer);
+  });
+}
+
+async function deleteCloudinaryImage(publicId, authenticated = false) {
+  if (!publicId || !cloudinaryConfigured) return;
+  try {
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image',
+      type: authenticated ? 'authenticated' : 'upload'
+    });
+  } catch (error) {
+    console.error('Unable to remove replaced Cloudinary image:', error.message);
+  }
+}
 
 async function getRaisedByItem(items) {
   if (!items.length) return {};
@@ -135,7 +219,37 @@ app.post('/support/:id', asyncRoute(async (req, res) => {
     transferReference: values.transferReference,
     paymentCode: Contribution.createPaymentCode()
   });
-  res.render('pledge-created', { title: 'Your support pledge', contribution, item });
+  res.render('pledge-created', { title: 'Your support pledge', contribution, item, proofUploaded: false });
+}));
+
+app.post('/contribution/:code/proof', proofUploadLimiter, parseImageUpload('proof'), verifyCsrfToken, validateUploadedImage, asyncRoute(async (req, res) => {
+  const paymentCode = String(req.params.code || '').toUpperCase();
+  if (!/^LUXE-[A-F0-9]{10}$/.test(paymentCode)) {
+    return res.status(404).render('error', { title: 'Contribution not found', message: 'That contribution could not be found.' });
+  }
+  const contribution = await Contribution.findOne({ paymentCode }).populate('item');
+  if (!contribution) return res.status(404).render('error', { title: 'Contribution not found', message: 'That contribution could not be found.' });
+  if (contribution.status !== 'pending') {
+    return res.status(409).render('error', { title: 'Proof upload closed', message: 'This contribution is no longer awaiting verification.' });
+  }
+  if (!req.file) return res.status(400).render('error', { title: 'Proof upload failed', message: 'Choose an image of your transfer proof.' });
+
+  const uploaded = await uploadCloudinaryImage(req.file, 'luxe-salon/payment-proofs', true);
+  const previousPublicId = contribution.paymentProofPublicId;
+  contribution.paymentProofPublicId = uploaded.public_id;
+  contribution.paymentProofFormat = uploaded.format;
+  try {
+    await contribution.save();
+  } catch (error) {
+    await deleteCloudinaryImage(uploaded.public_id, true);
+    throw error;
+  }
+  if (previousPublicId && previousPublicId !== uploaded.public_id) {
+    await deleteCloudinaryImage(previousPublicId, true);
+  }
+  res.render('pledge-created', {
+    title: 'Your support pledge', contribution, item: contribution.item, proofUploaded: true
+  });
 }));
 
 app.get('/contribution-status', (req, res) => res.render('lookup', { title: 'Check contribution status', result: null, error: null }));
@@ -180,11 +294,22 @@ app.get('/admin', requireAdmin, asyncRoute(async (req, res) => {
 }));
 
 app.get('/admin/items/new', requireAdmin, (req, res) => res.render('admin/item-form', { title: 'Add fundraiser item', item: null, error: null }));
-app.post('/admin/items', requireAdmin, asyncRoute(async (req, res) => {
+app.post('/admin/items', requireAdmin, parseImageUpload('image'), verifyCsrfToken, validateUploadedImage, asyncRoute(async (req, res) => {
   const data = itemFormData(req.body);
   const error = validateItem(data);
   if (error) return res.status(400).render('admin/item-form', { title: 'Add fundraiser item', item: data, error });
-  await Item.create(data);
+  let uploaded;
+  if (req.file) {
+    uploaded = await uploadCloudinaryImage(req.file, 'luxe-salon/item-images');
+    data.imageUrl = uploaded.secure_url;
+    data.imagePublicId = uploaded.public_id;
+  }
+  try {
+    await Item.create(data);
+  } catch (error) {
+    if (uploaded) await deleteCloudinaryImage(uploaded.public_id);
+    throw error;
+  }
   req.session.flash = { type: 'success', message: 'Fundraiser item added.' };
   res.redirect('/admin');
 }));
@@ -194,12 +319,38 @@ app.get('/admin/items/:id/edit', requireAdmin, asyncRoute(async (req, res) => {
   if (!item) return res.status(404).render('error', { title: 'Item not found', message: 'That item could not be found.' });
   res.render('admin/item-form', { title: 'Edit fundraiser item', item, error: null });
 }));
-app.post('/admin/items/:id', requireAdmin, asyncRoute(async (req, res) => {
+app.post('/admin/items/:id', requireAdmin, parseImageUpload('image'), verifyCsrfToken, validateUploadedImage, asyncRoute(async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).render('error', { title: 'Item not found', message: 'That item could not be found.' });
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).render('error', { title: 'Item not found', message: 'That item could not be found.' });
   const data = itemFormData(req.body);
+  const previousPublicId = item.imagePublicId;
+  if (req.body.removeImage === 'on' || data.imageUrl !== item.imageUrl) data.imagePublicId = '';
+  else data.imagePublicId = item.imagePublicId || '';
+  if (req.file) {
+    data.imageUrl = '';
+    data.imagePublicId = '';
+  }
   const error = validateItem(data);
-  if (error) return res.status(400).render('admin/item-form', { title: 'Edit fundraiser item', item: { ...data, _id: req.params.id }, error });
-  await Item.findByIdAndUpdate(req.params.id, data, { runValidators: true });
+  if (error) return res.status(400).render('admin/item-form', {
+    title: 'Edit fundraiser item', item: { ...item.toObject(), ...data, _id: req.params.id }, error
+  });
+  if (req.body.removeImage === 'on') data.imageUrl = '';
+  let uploaded;
+  if (req.file) {
+    uploaded = await uploadCloudinaryImage(req.file, 'luxe-salon/item-images');
+    data.imageUrl = uploaded.secure_url;
+    data.imagePublicId = uploaded.public_id;
+  }
+  try {
+    await Item.findByIdAndUpdate(req.params.id, data, { runValidators: true });
+  } catch (error) {
+    if (uploaded) await deleteCloudinaryImage(uploaded.public_id);
+    throw error;
+  }
+  if (previousPublicId && previousPublicId !== data.imagePublicId) {
+    await deleteCloudinaryImage(previousPublicId);
+  }
   req.session.flash = { type: 'success', message: 'Fundraiser item updated.' };
   res.redirect('/admin');
 }));
@@ -207,7 +358,17 @@ app.post('/admin/items/:id', requireAdmin, asyncRoute(async (req, res) => {
 app.get('/admin/contributions', requireAdmin, asyncRoute(async (req, res) => {
   const status = ['pending', 'verified', 'rejected'].includes(req.query.status) ? req.query.status : 'pending';
   const contributions = await Contribution.find({ status }).populate('item', 'title').sort({ createdAt: -1 }).lean();
-  res.render('admin/contributions', { title: 'Review contributions', contributions, status });
+  const contributionsWithProofs = contributions.map((contribution) => ({
+    ...contribution,
+    proofUrl: contribution.paymentProofPublicId && cloudinaryConfigured
+      ? cloudinary.utils.private_download_url(contribution.paymentProofPublicId, contribution.paymentProofFormat || 'jpg', {
+        type: 'authenticated',
+        secure: true,
+        expires_at: Math.floor(Date.now() / 1000) + 5 * 60
+      })
+      : null
+  }));
+  res.render('admin/contributions', { title: 'Review contributions', contributions: contributionsWithProofs, status });
 }));
 app.post('/admin/contributions/:id/status', requireAdmin, asyncRoute(async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).render('error', { title: 'Contribution not found', message: 'That contribution could not be found.' });
@@ -230,7 +391,8 @@ function itemFormData(body) {
     description: String(body.description || '').trim().slice(0, 2000),
     targetAmountKobo: Number.isFinite(amount) ? Math.round(amount * 100) : 0,
     status: ['draft', 'active', 'funded', 'purchased', 'archived'].includes(body.status) ? body.status : 'draft',
-    imageUrl: String(body.imageUrl || '').trim().slice(0, 500)
+    imageUrl: String(body.imageUrl || '').trim().slice(0, 500),
+    imagePublicId: ''
   };
 }
 function validateItem(item) {
@@ -244,7 +406,11 @@ app.use((req, res) => res.status(404).render('error', { title: 'Page not found',
 app.use((error, req, res, next) => {
   console.error(error);
   if (res.headersSent) return next(error);
-  res.status(500).render('error', { title: 'Something went wrong', message: 'Please try again later.' });
+  const status = Number.isInteger(error.statusCode) && error.statusCode >= 400 && error.statusCode < 600 ? error.statusCode : 500;
+  res.status(status).render('error', {
+    title: status === 503 ? 'Uploads unavailable' : 'Something went wrong',
+    message: status === 503 ? error.message : 'Please try again later.'
+  });
 });
 
 async function start() {

@@ -1,11 +1,13 @@
 <%- include('../partials/header') %>
 <section class="narrow-section"><div class="form-card"><span class="eyebrow">Wishlist management</span><h1><%= item ? 'Edit fundraiser item' : 'Add a fundraiser item' %></h1>
   <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
-  <form method="post" action="<%= item ? '/admin/items/' + item._id : '/admin/items' %>" class="stacked-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <form method="post" enctype="multipart/form-data" action="<%= item ? '/admin/items/' + item._id : '/admin/items' %>" class="stacked-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <label>Item name<input name="title" required maxlength="120" value="<%= item ? item.title : '' %>" placeholder="Styling chair"></label>
     <label>Description<textarea name="description" required maxlength="2000" rows="4" placeholder="Explain why this item is needed"><%= item ? item.description : '' %></textarea></label>
     <label>Target amount (<%= process.env.CURRENCY || 'NGN' %>)<input type="number" name="targetAmount" required min="1" step="0.01" value="<%= item ? (item.targetAmountKobo / 100).toFixed(2) : '' %>"></label>
+    <label>Upload photo <span class="muted">(JPEG, PNG, or WebP; up to 5 MB)</span><input type="file" name="image" accept="image/jpeg,image/png,image/webp"></label>
     <label>Photo URL <span class="muted">(optional; HTTPS only)</span><input type="url" name="imageUrl" maxlength="500" value="<%= item ? item.imageUrl : '' %>" placeholder="https://example.com/photo.jpg"></label>
+    <% if (item && item.imageUrl) { %><label class="checkbox-label"><input type="checkbox" name="removeImage" value="on"> Remove current photo</label><% } %>
     <label>Visibility / item status<select name="status"><% ['draft','active','funded','purchased','archived'].forEach((status) => { %><option value="<%= status %>" <%= item && item.status === status ? 'selected' : (!item && status === 'draft' ? 'selected' : '') %>><%= status.charAt(0).toUpperCase() + status.slice(1) %></option><% }) %></select></label>
     <button class="button button-primary button-full"><%= item ? 'Save changes' : 'Create item' %></button><a class="back-link" href="/admin">Cancel and return to dashboard</a>
   </form>

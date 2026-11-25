@@ -14,6 +14,9 @@ This branch converts the static Luxe Salon site into an EJS/Express fundraiser M
 5. Sign in at `/admin`. The initial admin is created once at startup if that email is not already registered. Changing the environment password does not reset an existing admin password.
 6. Add an item and set its status to **Active** to show it publicly.
 
+## Image uploads
+Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in `.env` (or configure `CLOUDINARY_URL`) to enable uploads. Admins can upload JPEG, PNG, or WebP item photos up to 5 MB. Supporters can upload payment proof from the pledge confirmation page after transferring; proofs use authenticated Cloudinary delivery and are available as signed links in the admin contribution review.
+
 ## Manual transfer workflow
 1. A supporter chooses an active item, enters an amount, and submits a pledge.
 2. The app creates a private `LUXE-...` contribution reference and shows the configured transfer instructions.
