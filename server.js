@@ -57,6 +57,7 @@ app.use((req, res, next) => {
     accountNumber: process.env.BANK_ACCOUNT_NUMBER || ''
   };
   res.locals.flash = req.session.flash || null;
+  res.locals.admin = null;
   delete req.session.flash;
   if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     const supplied = req.body && req.body._csrf;
