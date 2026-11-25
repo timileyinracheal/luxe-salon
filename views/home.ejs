@@ -1,0 +1,32 @@
+<%- include('partials/header') %>
+<section class="hero">
+  <div class="hero-content">
+    <span class="eyebrow">A new chapter for Luxe Salon</span>
+    <h1>Help bring the salon to life.</h1>
+    <p>I’m raising funds to open a welcoming physical salon in Abuja. Every contribution helps turn the plan into a place where people can feel cared for and confident.</p>
+    <a class="button button-primary" href="#fundraiser-items">Explore what’s needed</a>
+  </div>
+  <div class="hero-card"><span class="hero-icon">✂</span><p>Built with care.<br><strong>Supported by you.</strong></p><span class="hero-note">A community-powered salon launch</span></div>
+</section>
+<section class="campaign-summary">
+  <div><span class="eyebrow">Verified support</span><strong><%= formatMoney(totalRaised) %></strong><span>Contributions are added after manual verification.</span></div>
+  <div class="summary-note"><span class="check-icon">✓</span><p>Choose an item to support. You can contribute toward the cost—every amount helps.</p></div>
+</section>
+<section class="section" id="fundraiser-items">
+  <div class="section-heading"><div><span class="eyebrow">The salon essentials</span><h2>Help fund what we need</h2></div><p>Each item has a clear target. Supporters can check their contribution status using a private reference.</p></div>
+  <% if (!items.length) { %><div class="empty-state"><h3>Our item list is being prepared</h3><p>Please check back soon for the salon launch wishlist.</p></div><% } %>
+  <div class="item-grid">
+    <% items.forEach((item) => { const raised = raisedByItem[String(item._id)] || 0; const percent = Math.min(100, Math.round((raised / item.targetAmountKobo) * 100)); %>
+      <article class="item-card">
+        <% if (item.imageUrl) { %><img class="item-image" src="<%= item.imageUrl %>" alt="<%= item.title %>" loading="lazy"><% } else { %><div class="item-image item-image-placeholder"><span>✦</span></div><% } %>
+        <div class="item-body"><span class="eyebrow">Salon wishlist</span><h3><%= item.title %></h3><p><%= item.description %></p>
+          <div class="progress-label"><span><%= formatMoney(raised) %> verified</span><span>of <%= formatMoney(item.targetAmountKobo) %></span></div>
+          <div class="progress-track" role="progressbar" aria-label="Fundraising progress for <%= item.title %>" aria-valuenow="<%= percent %>" aria-valuemin="0" aria-valuemax="100"><span style="width:<%= percent %>%"></span></div>
+          <a class="button button-outline button-full" href="/support/<%= item._id %>">Support this item</a>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+<section class="trust-band"><span class="eyebrow">A transparent journey</span><h2>Your support, accounted for.</h2><p>Bank-transfer pledges remain pending until I confirm receipt. Verified contributions update the item’s progress, and funded items can be marked purchased with an update.</p><a href="/contribution-status">Check a contribution</a></section>
+<%- include('partials/footer') %>

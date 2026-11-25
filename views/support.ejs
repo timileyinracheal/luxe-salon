@@ -1,0 +1,19 @@
+<%- include('partials/header') %>
+<section class="narrow-section">
+  <a class="back-link" href="/">← Back to wishlist</a>
+  <div class="form-card support-card">
+    <span class="eyebrow">Support the salon launch</span><h1><%= item.title %></h1><p><%= item.description %></p>
+    <div class="support-target"><span>Verified so far</span><strong><%= formatMoney(raised) %></strong><span>Target: <%= formatMoney(item.targetAmountKobo) %></span></div>
+    <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+    <form method="post" action="/support/<%= item._id %>" class="stacked-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Your name <span class="muted">(optional)</span><input name="donorName" maxlength="100" value="<%= values.donorName || '' %>" autocomplete="name" placeholder="Leave blank to support anonymously"></label>
+      <label>Email <span class="muted">(optional, not shown publicly)</span><input type="email" name="donorEmail" maxlength="254" value="<%= values.donorEmail || '' %>" autocomplete="email" placeholder="you@example.com"></label>
+      <label>Amount (<%= process.env.CURRENCY || 'NGN' %>)<input type="number" name="amount" min="1" step="0.01" required value="<%= values.amount || '' %>" placeholder="e.g. 5000"></label>
+      <label>Bank transfer note or transaction reference <span class="muted">(optional)</span><input name="transferReference" maxlength="120" value="<%= values.transferReference || '' %>" placeholder="You can add this after the transfer"></label>
+      <button class="button button-primary button-full" type="submit">Continue to bank transfer details</button>
+      <p class="fine-print">Submitting creates a pending pledge; it does not process a payment. Your contribution counts publicly only after manual verification.</p>
+    </form>
+  </div>
+</section>
+<%- include('partials/footer') %>
