@@ -1,0 +1,10 @@
+<%- include('../partials/header') %>
+<section class="section admin-section"><div class="section-heading"><div><span class="eyebrow">Private administration</span><h1>Fundraiser dashboard</h1><p>Signed in as <strong><%= admin.email %></strong></p></div><form method="post" action="/admin/logout"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="button button-outline">Sign out</button></form></div>
+  <div class="admin-stats"><div><span>Verified contributions</span><strong><%= formatMoney(verifiedTotal) %></strong></div><div><span>Awaiting review</span><strong><%= pendingCount %></strong><a href="/admin/contributions">Review contributions →</a></div></div>
+  <div class="admin-actions"><h2>Fundraiser items</h2><a class="button button-primary" href="/admin/items/new">Add an item</a><a href="/admin/contributions?status=pending">Review pending contributions</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Item</th><th>Status</th><th>Verified / target</th><th>Updated</th><th></th></tr></thead><tbody>
+    <% if (!items.length) { %><tr><td colspan="5">No items yet. Add your first fundraiser item.</td></tr><% } %>
+    <% items.forEach((item) => { %><tr><td><strong><%= item.title %></strong></td><td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td><td><%= formatMoney(raisedByItem[String(item._id)] || 0) %> / <%= formatMoney(item.targetAmountKobo) %></td><td><%= new Date(item.updatedAt).toLocaleDateString() %></td><td><a href="/admin/items/<%= item._id %>/edit">Edit</a></td></tr><% }) %>
+  </tbody></table></div>
+</section>
+<%- include('../partials/footer') %>

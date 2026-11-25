@@ -1,0 +1,7 @@
+<%- include('partials/header') %>
+<section class="narrow-section"><div class="form-card"><span class="eyebrow">Contribution lookup</span><h1>Check your contribution</h1><p>Enter the private reference shown when you created your pledge.</p>
+  <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+  <form method="post" action="/contribution-status" class="stacked-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><label>Contribution reference<input name="paymentCode" required maxlength="30" placeholder="LUXE-XXXXXXXXXX"></label><button class="button button-primary button-full">Check status</button></form>
+  <% if (result) { %><div class="status-result"><span class="eyebrow">Contribution status</span><h2><%= result.status.charAt(0).toUpperCase() + result.status.slice(1) %></h2><p><%= formatMoney(result.amountKobo) %> toward <strong><%= result.item ? result.item.title : 'a salon item' %></strong></p><% if (result.status === 'pending') { %><p>Thank you. The fundraiser owner will update this status after checking the bank transfer.</p><% } else if (result.status === 'verified') { %><p>Your contribution has been verified and included in the item’s public progress.</p><% } else { %><p>This contribution was not verified. Please contact the fundraiser owner if you believe this is a mistake.</p><% } %></div><% } %>
+</div></section>
+<%- include('partials/footer') %>
